@@ -10,7 +10,7 @@ unset($_SESSION['flash']);
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Recomienda la web</title>
+<title>EmailSpoof</title>
 <style>
   body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; color: #222; }
   h1 { font-size: 1.4rem; }
