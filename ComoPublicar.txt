@@ -1,0 +1,4 @@
+Cómo usarlo (cada vez que cambies algo):
+
+cd /home/dergli/Proyectos/EmailSpoof
+./publicar.sh "Descripción del cambio"
