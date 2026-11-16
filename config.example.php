@@ -19,8 +19,11 @@ return [
         'allowed_hosts' => ['tudominio.com', 'www.tudominio.com'],
     ],
     'limits' => [
-        'per_ip_per_hour'   => 5,              // envios por IP y hora
-        'max_comment'       => 20000,          // caracteres maximos del mensaje (HTML)
-        'max_name'          => 60,
+        'per_ip_per_hour'     => 5,              // envios por IP y hora
+        'max_comment'         => 20000,          // caracteres maximos del mensaje (HTML)
+        'max_name'            => 60,
+        'max_attachments'     => 5,              // numero maximo de archivos adjuntos
+        'max_attachment_size' => 8388608,        // 8 MB por archivo
+        'max_attachment_total'=> 20971520,       // 20 MB en total por correo
     ],
 ];

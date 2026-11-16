@@ -67,6 +67,45 @@ if ($message === '' || mb_strlen($message, 'UTF-8') > $maxCmt) {
 $safeName    = clean_header_value($name);
 $safeSubject = clean_header_value($subject);
 
+// Limites de adjuntos
+$maxFiles     = (int)($c['limits']['max_attachments'] ?? 5);
+$maxAttSize   = (int)($c['limits']['max_attachment_size'] ?? 8 * 1024 * 1024);
+$maxAttTotal  = (int)($c['limits']['max_attachment_total'] ?? 20 * 1024 * 1024);
+$attachments  = $_FILES['attachments'] ?? null;
+$validAtts    = [];
+
+if (is_array($attachments) && is_array($attachments['name'] ?? null)) {
+    $count = count($attachments['name']);
+    if ($count > $maxFiles) {
+        $flash('err', 'Demasiados adjuntos (maximo ' . $maxFiles . ').');
+    }
+    $totalSize = 0;
+    for ($i = 0; $i < $count; $i++) {
+        $err  = (int)($attachments['error'][$i] ?? UPLOAD_ERR_NO_FILE);
+        $size = (int)($attachments['size'][$i] ?? 0);
+        $tmp  = (string)($attachments['tmp_name'][$i] ?? '');
+        if ($err === UPLOAD_ERR_NO_FILE || $tmp === '') {
+            continue;
+        }
+        $origName = basename((string)$attachments['name'][$i]);
+        if ($err !== UPLOAD_ERR_OK) {
+            $flash('err', 'Error al subir "' . $origName . '". Puede superar el limite del servidor.');
+        }
+        if ($size <= 0 || $size > $maxAttSize) {
+            $flash('err', '"' . $origName . '" supera el maximo de ' . round($maxAttSize / 1048576, 1) . ' MB por archivo.');
+        }
+        $totalSize += $size;
+        if ($totalSize > $maxAttTotal) {
+            $flash('err', 'El total de adjuntos supera ' . round($maxAttTotal / 1048576, 1) . ' MB.');
+        }
+        $safeAttName = clean_header_value($origName);
+        if ($safeAttName === '') {
+            $safeAttName = 'adjunto-' . ($i + 1);
+        }
+        $validAtts[] = ['tmp' => $tmp, 'name' => $safeAttName];
+    }
+}
+
 require __DIR__ . '/vendor/PHPMailer/Exception.php';
 require __DIR__ . '/vendor/PHPMailer/PHPMailer.php';
 require __DIR__ . '/vendor/PHPMailer/SMTP.php';
@@ -99,6 +138,10 @@ try {
     $mail->isHTML(true);
     $mail->Body    = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"></head><body>' . $message . '</body></html>';
     $mail->AltBody = strip_tags(str_replace(['<br>', '<br/>', '<br />', '</p>'], "\n", $message));
+
+    foreach ($validAtts as $att) {
+        $mail->addAttachment($att['tmp'], $att['name']);
+    }
 
     $mail->send();
     $flash('ok', 'Correo enviado correctamente.');

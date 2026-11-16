@@ -1,15 +1,20 @@
 # EmailSpoof
 
-Formulario web en PHP para enviar correos con asunto y cuerpo libres (HTML permitido) a través del SMTP de Mailgun.
+Formulario web en PHP para enviar correos con editor HTML enriquecido (WYSIWYG), archivos adjuntos y asunto libre, a través del SMTP de Mailgun.
 
 > **Proyecto educativo.** Este código se ha creado con fines de aprendizaje: para entender cómo funciona el envío de correo por SMTP, la validación de formularios, la protección CSRF y el uso de servicios como Mailgun. **No lo uses para hacer daño**: suplantar identidades, engañar a personas, enviar spam o hacer phishing es ilegal y perjudica a otros. Usa esta herramienta solo con direcciones de tu propiedad y con fines legítimos.
 
 > **Aviso sobre el remitente:** el campo "Email remitente (From)" permite escribir cualquier dirección, pero Mailgun y otros proveedores serios **rechazan** los correos cuyo remitente no pertenece a un dominio verificado en tu cuenta. Si quieres que el correo llegue, usa un remitente de tu propio dominio verificado.
 
+## Características
+
+- **Editor HTML enriquecido** (WYSIWYG con `contenteditable`, sin dependencias externas): negrita, cursiva, subrayado, títulos, listas, alineación, enlaces, imágenes por URL, colores de texto y fondo, deshacer/rehacer y modo de vista del código HTML.
+- **Archivos adjuntos**: zona de arrastrar y soltar con lista de archivos y botón para quitarlos; límites configurables de número, tamaño por archivo y tamaño total (se envían con PHPMailer `addAttachment`).
+
 ## Estructura
 
-- `index.php`: formulario.
-- `send.php`: validación y envío con PHPMailer (SMTP).
+- `index.php`: formulario con editor HTML enriquecido y zona de adjuntos.
+- `send.php`: validación, adjuntos y envío con PHPMailer (SMTP).
 - `lib/helpers.php`: funciones auxiliares (sanitización, CSRF, rate limit).
 - `vendor/PHPMailer/`: librería PHPMailer.
 - `config.example.php`: plantilla de configuración con valores de ejemplo.
@@ -48,6 +53,9 @@ Formulario web en PHP para enviar correos con asunto y cuerpo libres (HTML permi
    - `sender.email`: un remitente de tu dominio verificado.
    - `site.name`, `site.url`, `site.allowed_hosts`: datos de tu web.
    - `limits.max_comment`: longitud máxima del mensaje.
+   - `limits.max_attachments`, `limits.max_attachment_size`, `limits.max_attachment_total`: límites de los adjuntos.
+
+   Nota: PHP también limita las subidas con `upload_max_filesize` y `post_max_size` en `php.ini`. Si un adjunto supera esos valores, el servidor lo rechazará antes de llegar a la aplicación.
 
 ## Ejecutar en local
 
