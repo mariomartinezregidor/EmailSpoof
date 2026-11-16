@@ -84,11 +84,13 @@ if (is_array($attachments) && is_array($attachments['name'] ?? null)) {
         $err  = (int)($attachments['error'][$i] ?? UPLOAD_ERR_NO_FILE);
         $size = (int)($attachments['size'][$i] ?? 0);
         $tmp  = (string)($attachments['tmp_name'][$i] ?? '');
-        if ($err === UPLOAD_ERR_NO_FILE || $tmp === '') {
+        if ($err === UPLOAD_ERR_NO_FILE) {
             continue;
         }
         $origName = basename((string)$attachments['name'][$i]);
-        if ($err !== UPLOAD_ERR_OK) {
+        // Un error de PHP (tamaño excedido, subida parcial, etc.) deja tmp_name vacío.
+        // No hay que silenciarlo: el usuario debe saber que el adjunto NO se envió.
+        if ($err !== UPLOAD_ERR_OK || $tmp === '') {
             $flash('err', 'Error al subir "' . $origName . '". Puede superar el limite del servidor.');
         }
         if ($size <= 0 || $size > $maxAttSize) {
